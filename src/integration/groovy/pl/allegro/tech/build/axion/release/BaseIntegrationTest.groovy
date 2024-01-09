@@ -11,8 +11,8 @@ class BaseIntegrationTest extends RepositoryBasedTest {
         return new FileTreeBuilder(temporaryFolder).file("build.gradle", "")
     }
 
-    File newFile(String name) {
-        return new FileTreeBuilder(temporaryFolder).file(name, "")
+    File newFile(String name, String contents = "") {
+        return new FileTreeBuilder(temporaryFolder).file(name, contents)
     }
 
     void buildFile(String contents) {

@@ -1,5 +1,6 @@
 package pl.allegro.tech.build.axion.release
 
+import org.eclipse.jgit.api.Git
 import org.gradle.testkit.runner.TaskOutcome
 
 import static pl.allegro.tech.build.axion.release.TagPrefixConf.*
@@ -129,6 +130,36 @@ class HighestVersionIntegrationTest extends BaseIntegrationTest {
         then:
         result.output.contains('1.5.1')
         !result.output.contains('SNAPSHOT')
+        result.task(":currentVersion").outcome == TaskOutcome.SUCCESS
+    }
+
+    def "should return tag with highest version if an unmerged branch tags a higher version and useHighestVersion is set to true"() {
+        given:
+        buildFile('')
+        newFile(".gitignore", ".gradle")
+
+        Git git = repository.getJgitRepository();
+        git.add().addFilepattern('.').call()
+        git.commit().setMessage("init").call()
+        runGradle('release', '-Prelease.version=1.0.0', '-Prelease.localOnly', '-Prelease.disableChecks')
+
+
+        git.checkout().setCreateBranch(true).setName("unmergedBranch").call()
+        newFile("changeUnmergedBranch")
+        git.add().addFilepattern('.').call()
+        git.commit().setMessage("commit after unmergedBranch has changed").call()
+        runGradle('release', '-Prelease.version=1.1.0', '-Prelease.localOnly', '-Prelease.disableChecks')
+
+        git.checkout().setName("master").call()
+        newFile("changeMasterBranch")
+        git.add().addFilepattern('.').call()
+        git.commit().setMessage("commit after master has changed").call()
+
+        when:
+        def result = runGradle('currentVersion', '-Prelease.useHighestVersion')
+
+        then:
+        result.output.contains('1.1.1-SNAPSHOT') // what we really get is 1.0.1-SNAPSHOT
         result.task(":currentVersion").outcome == TaskOutcome.SUCCESS
     }
 
