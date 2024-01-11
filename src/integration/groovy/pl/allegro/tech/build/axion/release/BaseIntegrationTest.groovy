@@ -23,12 +23,14 @@ class BaseIntegrationTest extends RepositoryBasedTest {
         """ + contents +
             """
 
-        project.version = scmVersion.version
+
         scmVersion {
             release {
                 useHighestVersion = true
             }
         }
+
+         project.version = scmVersion.version
         """)
     }
 
