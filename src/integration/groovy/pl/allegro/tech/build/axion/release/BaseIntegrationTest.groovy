@@ -3,14 +3,15 @@ package pl.allegro.tech.build.axion.release
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 
+
 class BaseIntegrationTest extends RepositoryBasedTest {
 
     File buildFile() {
         return new FileTreeBuilder(temporaryFolder).file("build.gradle","")
     }
 
-    File newFile(String name) {
-        return new FileTreeBuilder(temporaryFolder).file(name,"")
+    File newFile(String name, String contents = "") {
+        return new FileTreeBuilder(temporaryFolder).file(name, contents)
     }
 
     void buildFile(String contents) {
@@ -23,6 +24,11 @@ class BaseIntegrationTest extends RepositoryBasedTest {
             """
 
         project.version = scmVersion.version
+        scmVersion {
+            release {
+                useHighestVersion = true
+            }
+        }
         """)
     }
 
