@@ -135,7 +135,13 @@ class HighestVersionIntegrationTest extends BaseIntegrationTest {
 
     def "should return tag with highest version if an unmerged branch tags a higher version and useHighestVersion is set to true"() {
         given:
-        buildFile('')
+        buildFile("""
+        scmVersion {
+            release {
+                useHighestVersion = true
+            }
+        }
+        """)
         newFile(".gitignore", ".gradle")
 
         Git git = repository.getJgitRepository();
